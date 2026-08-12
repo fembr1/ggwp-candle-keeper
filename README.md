@@ -24,6 +24,7 @@ cp .env.example .env      # then fill in ACCESS_TOKEN + ROOM_NAME (+ COOKIE)
 | `WS_PATH` | | `/ms-gateway/tix-ggwp-ws-hub/v1/ws/` | Socket.IO path. |
 | `API_BASE_URL` | | `https://www.tiket.com/.../session` | Base for the `/{ROOM_NAME}/hit` endpoint. |
 | `MAX_MS_DIFF` | | `1300` | Fire the hit when the countdown is within this many ms. |
+| `STOP_AT` | | — | ISO datetime hard stop; after this, hits stop and the client exits. |
 | `USER_AGENT` | | Chrome-like UA | Sent on socket + hit requests. |
 
 Missing `ACCESS_TOKEN` or `ROOM_NAME` exits immediately with a clear error.
@@ -42,5 +43,5 @@ npm start        # = node socket-client.js
 ## How it works
 
 1. Connects with the first `ACCESS_TOKEN` + browser-like `Cookie`/`Origin` headers, then joins `ROOM_NAME`.
-2. On each room event, computes `endTimestamp - now`.
-3. If that is below `MAX_MS_DIFF`, it immediately sends the hit — no other checks — using the next user in round-robin order when multiple tokens are configured.
+2. On each room event, if `STOP_AT` is set and the current time is past it, disconnects and exits.
+3. Otherwise computes `endTimestamp - now`. If that is below `MAX_MS_DIFF`, it immediately sends the hit — using the next user in round-robin order when multiple tokens are configured.

@@ -44,6 +44,17 @@ const API_BASE_URL =
   "https://www.tiket.com/ms-gateway/ggwp-server/harta-karun/session";
 const API_URL = `${API_BASE_URL}/${ROOM_NAME}/hit`;
 const MAX_MS_DIFF = Number(process.env.MAX_MS_DIFF) || 1300;
+const STOP_AT_RAW = (process.env.STOP_AT || "").trim();
+let STOP_AT_MS = null;
+if (STOP_AT_RAW) {
+  STOP_AT_MS = Date.parse(STOP_AT_RAW);
+  if (Number.isNaN(STOP_AT_MS)) {
+    console.error(
+      `❌ Invalid STOP_AT: "${STOP_AT_RAW}". Use an ISO datetime, e.g. 2026-08-12T18:00:00+07:00`
+    );
+    process.exit(1);
+  }
+}
 const COOKIE_FROM_ENV = !!(process.env.COOKIE || "").trim();
 // Full COOKIE only applies to single-user mode; multi-user hits use per-token cookies.
 const COOKIE =
@@ -236,8 +247,22 @@ function isUnsetEndTimestamp(value) {
 }
 
 let waitingForStartLogged = false;
+let hardStopLogged = false;
+
+function isPastHardStop() {
+  return STOP_AT_MS !== null && Date.now() >= STOP_AT_MS;
+}
 
 function handleRoomEvent(response) {
+  if (isPastHardStop()) {
+    if (!hardStopLogged) {
+      hardStopLogged = true;
+      console.log(`🛑 Hard stop reached (STOP_AT=${STOP_AT_RAW}) — shutting down`);
+      gracefulShutdown("STOP_AT");
+    }
+    return;
+  }
+
   if (!response || !response.endTimestamp) {
     console.log("⚠️ Invalid response format (no endTimestamp)");
     return;
@@ -332,4 +357,8 @@ console.log(
 );
 console.log("   - Origin:", ORIGIN);
 console.log("   - Max ms diff:", MAX_MS_DIFF);
+console.log(
+  "   - Hard stop:",
+  STOP_AT_MS !== null ? new Date(STOP_AT_MS).toISOString() : "(not set)"
+);
 initializeSocket(ROOM_NAME);
