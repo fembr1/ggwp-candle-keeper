@@ -1,0 +1,21 @@
+{
+  "name": "penjaga-lilin-client",
+  "version": "1.0.0",
+  "description": "Simple single-machine tiket.com auto-hit client (no Redis, no winning check). Blindly hits when the countdown drops below the threshold.",
+  "main": "socket-client.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node socket-client.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^17.4.2",
+    "socket.io-client": "^4.7.0",
+    "uuid": "^9.0.0"
+  }
+}
