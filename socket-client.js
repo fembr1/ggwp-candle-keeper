@@ -18,7 +18,21 @@ function required(name) {
   return value;
 }
 
-const ACCESS_TOKEN = required("ACCESS_TOKEN");
+const ACCESS_TOKEN_RAW = required("ACCESS_TOKEN");
+const USERS = ACCESS_TOKEN_RAW.split(",")
+  .map((t) => t.trim())
+  .filter(Boolean);
+if (USERS.length === 0) {
+  console.error(
+    "❌ ACCESS_TOKEN has no valid tokens. Use a single JWT or comma-separated list."
+  );
+  process.exit(1);
+}
+const MULTI_USER = USERS.length > 1;
+// Socket listens with the first account; hits round-robin across all.
+const SOCKET_ACCESS_TOKEN = USERS[0];
+let nextUserIndex = 0;
+
 // Session / round id used in .../session/{id}/hit and usually the socket room event.
 const ROOM_NAME = required("ROOM_NAME");
 // Campaign id from URL /game/.../campaign/{id} — optional; also joined if set.
@@ -30,10 +44,12 @@ const API_BASE_URL =
   "https://www.tiket.com/ms-gateway/ggwp-server/harta-karun/session";
 const API_URL = `${API_BASE_URL}/${ROOM_NAME}/hit`;
 const MAX_MS_DIFF = Number(process.env.MAX_MS_DIFF) || 1300;
-const COOKIE =
-  (process.env.COOKIE || "").trim() ||
-  `session_access_token=${ACCESS_TOKEN}`;
 const COOKIE_FROM_ENV = !!(process.env.COOKIE || "").trim();
+// Full COOKIE only applies to single-user mode; multi-user hits use per-token cookies.
+const COOKIE =
+  !MULTI_USER && COOKIE_FROM_ENV
+    ? (process.env.COOKIE || "").trim()
+    : `session_access_token=${SOCKET_ACCESS_TOKEN}`;
 
 function cookieValue(name) {
   const match = COOKIE.match(new RegExp(`(?:(?:^|;\\s*)${name}=([^;]*))`));
@@ -60,9 +76,6 @@ const REFERER =
     ? `${ORIGIN}/en-sg/game/berburu-tiket-murah/campaign/${CAMPAIGN_ID}`
     : ORIGIN);
 
-// Browser WS cannot set custom headers; Cookie + socket.io auth carry the session.
-const SOCKET_ACCESS_TOKEN = ACCESS_TOKEN;
-
 function buildSocketHeaders() {
   return {
     accessToken: SOCKET_ACCESS_TOKEN,
@@ -75,8 +88,13 @@ function buildSocketHeaders() {
   };
 }
 
+function cookieForToken(token) {
+  return `session_access_token=${token}`;
+}
+
 // Match the browser hit curl (cookie session, not Bearer).
-function buildHitHeaders() {
+function buildHitHeaders(token) {
+  const useFullCookie = !MULTI_USER && COOKIE_FROM_ENV;
   return {
     accept: "*/*",
     "accept-language": LANG,
@@ -94,7 +112,7 @@ function buildHitHeaders() {
     "x-country-code": COUNTRY_CODE,
     "x-country-id": COUNTRY_CODE,
     "x-currency": CURRENCY,
-    Cookie: COOKIE,
+    Cookie: useFullCookie ? COOKIE : cookieForToken(token),
   };
 }
 
@@ -120,8 +138,15 @@ function initializeSocket(roomId) {
   console.log("🧭 Origin:", ORIGIN);
   console.log(
     "🍪 Cookie mode:",
-    COOKIE_FROM_ENV ? "full COOKIE from .env" : "minimal (session_access_token only)"
+    !MULTI_USER && COOKIE_FROM_ENV
+      ? "full COOKIE from .env"
+      : "minimal (session_access_token only)"
   );
+  if (MULTI_USER && COOKIE_FROM_ENV) {
+    console.log(
+      "ℹ️ Multi-user mode — ignoring shared COOKIE for hits; using per-token cookies"
+    );
+  }
 
   socket = io(SOCKET_URL, {
     extraHeaders: buildSocketHeaders(),
@@ -249,12 +274,19 @@ function handleRoomEvent(response) {
 }
 
 async function executePostRequest() {
+  const userIndex = nextUserIndex;
+  const token = USERS[userIndex];
+  nextUserIndex = (nextUserIndex + 1) % USERS.length;
+
   try {
-    console.log("🚀 Executing POST request...", API_URL);
+    console.log(
+      `🚀 Executing POST request as user ${userIndex + 1}/${USERS.length}...`,
+      API_URL
+    );
     // Browser sends JSON as text/plain body — keep the same content-type.
     const body = JSON.stringify({ key: uuidv4() });
     const response = await axios.post(API_URL, body, {
-      headers: buildHitHeaders(),
+      headers: buildHitHeaders(token),
       timeout: 30000,
       transformRequest: [(data) => data],
     });
@@ -287,10 +319,16 @@ console.log("   - Path:", WS_PATH);
 console.log("   - Session/room:", ROOM_NAME);
 console.log("   - Campaign:", CAMPAIGN_ID || "(not set)");
 console.log("   - Hit URL:", API_URL);
-console.log("   - Token present:", !!ACCESS_TOKEN);
+console.log("   - Users loaded:", USERS.length);
+console.log(
+  "   - Hit rotation:",
+  MULTI_USER ? "round-robin across users" : "single user"
+);
 console.log(
   "   - Cookie mode:",
-  COOKIE_FROM_ENV ? "full COOKIE from .env" : "minimal (session_access_token only)"
+  !MULTI_USER && COOKIE_FROM_ENV
+    ? "full COOKIE from .env"
+    : "minimal (session_access_token only)"
 );
 console.log("   - Origin:", ORIGIN);
 console.log("   - Max ms diff:", MAX_MS_DIFF);
