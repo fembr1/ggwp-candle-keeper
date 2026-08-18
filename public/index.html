@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>penjaga-lilin</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="login-view" class="login-wrap hidden">
+      <form id="login-form" class="login-card" autocomplete="current-password">
+        <p class="eyebrow">penjaga-lilin</p>
+        <h1>Dashboard</h1>
+        <p class="muted">Enter the admin password to configure and run the client.</p>
+        <label>
+          Password
+          <input id="login-password" type="password" required autofocus />
+        </label>
+        <p id="login-error" class="error" hidden></p>
+        <button type="submit">Sign in</button>
+      </form>
+    </div>
+
+    <div id="app-view" class="app hidden">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">penjaga-lilin</p>
+          <h1>Client dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <span id="conn-badge" class="badge badge-idle">Idle</span>
+          <button id="btn-logout" type="button" class="ghost">Log out</button>
+        </div>
+      </header>
+
+      <section class="status-grid">
+        <article class="card">
+          <h2>Connection</h2>
+          <dl>
+            <div><dt>State</dt><dd id="st-running">—</dd></div>
+            <div><dt>Socket</dt><dd id="st-socket">—</dd></div>
+            <div><dt>Last error</dt><dd id="st-error">—</dd></div>
+          </dl>
+        </article>
+        <article class="card">
+          <h2>Session</h2>
+          <dl>
+            <div><dt>Room</dt><dd id="st-room">—</dd></div>
+            <div><dt>Campaign</dt><dd id="st-campaign">—</dd></div>
+            <div><dt>Users</dt><dd id="st-users">—</dd></div>
+          </dl>
+        </article>
+        <article class="card">
+          <h2>Timing</h2>
+          <dl>
+            <div><dt>Max ms diff</dt><dd id="st-diff">—</dd></div>
+            <div><dt>Hard stop</dt><dd id="st-stop">—</dd></div>
+            <div><dt>Countdown</dt><dd id="st-countdown">—</dd></div>
+          </dl>
+        </article>
+      </section>
+
+      <section class="card controls">
+        <div class="btn-row">
+          <button id="btn-start" type="button">Start</button>
+          <button id="btn-stop" type="button" class="ghost">Stop</button>
+          <button id="btn-restart" type="button" class="ghost">Restart</button>
+        </div>
+        <p id="action-error" class="error" hidden></p>
+      </section>
+
+      <section class="card">
+        <h2>Configuration</h2>
+        <p class="muted">Save writes to disk and restarts the client if it is already running.</p>
+        <form id="config-form">
+          <div class="form-grid">
+            <label class="wide">
+              ACCESS_TOKEN
+              <textarea id="cfg-ACCESS_TOKEN" rows="3" placeholder="token_a,token_b"></textarea>
+            </label>
+            <label>
+              ROOM_NAME
+              <input id="cfg-ROOM_NAME" type="text" />
+            </label>
+            <label>
+              CAMPAIGN_ID
+              <input id="cfg-CAMPAIGN_ID" type="text" />
+            </label>
+            <label>
+              MAX_MS_DIFF
+              <input id="cfg-MAX_MS_DIFF" type="number" min="1" />
+            </label>
+            <label>
+              STOP_AT
+              <input id="cfg-STOP_AT" type="text" placeholder="2026-08-12T18:00:00+07:00" />
+            </label>
+            <label class="wide">
+              COOKIE
+              <textarea id="cfg-COOKIE" rows="2" placeholder="optional full browser Cookie header"></textarea>
+            </label>
+          </div>
+
+          <details class="advanced">
+            <summary>Advanced</summary>
+            <div class="form-grid">
+              <label>
+                SOCKET_URL
+                <input id="cfg-SOCKET_URL" type="text" />
+              </label>
+              <label>
+                WS_PATH
+                <input id="cfg-WS_PATH" type="text" />
+              </label>
+              <label class="wide">
+                API_BASE_URL
+                <input id="cfg-API_BASE_URL" type="text" />
+              </label>
+              <label>
+                ORIGIN
+                <input id="cfg-ORIGIN" type="text" />
+              </label>
+              <label>
+                USER_AGENT
+                <input id="cfg-USER_AGENT" type="text" />
+              </label>
+              <label>
+                DEVICE_ID
+                <input id="cfg-DEVICE_ID" type="text" />
+              </label>
+              <label>
+                COUNTRY_CODE
+                <input id="cfg-COUNTRY_CODE" type="text" />
+              </label>
+              <label>
+                CURRENCY
+                <input id="cfg-CURRENCY" type="text" />
+              </label>
+              <label>
+                LANG
+                <input id="cfg-LANG" type="text" />
+              </label>
+              <label>
+                REFERER
+                <input id="cfg-REFERER" type="text" />
+              </label>
+            </div>
+          </details>
+
+          <div class="btn-row">
+            <button type="submit">Save config</button>
+            <span id="save-status" class="muted"></span>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Hit history</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody id="hits-body">
+              <tr><td colspan="4" class="muted">No hits yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card logs">
+        <div class="logs-head">
+          <h2>Live logs</h2>
+          <button id="btn-clear-logs" type="button" class="ghost small">Clear view</button>
+        </div>
+        <pre id="log-view" class="log-view"></pre>
+      </section>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
