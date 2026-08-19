@@ -4,7 +4,6 @@ const CONFIG_KEYS = [
   "MAX_MS_DIFF",
   "STOP_AT",
   "SOCKET_URL",
-  "WS_PATH",
   "API_BASE_URL",
 ];
 

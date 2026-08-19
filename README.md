@@ -31,8 +31,7 @@ cp .env.example .env      # then fill in ADMIN_PASSWORD + ACCESS_TOKEN + CAMPAIG
 | --- | --- | --- | --- |
 | `ACCESS_TOKEN` | to start | — | One JWT, or comma-separated JWTs for multi-user round-robin hits. |
 | `CAMPAIGN_SESSION_ID` | to start | — | Game session / room id to join and hit. |
-| `SOCKET_URL` | | `wss://api.tiket.com` | Socket.IO server URL. |
-| `WS_PATH` | | `/ms-gateway/tix-ggwp-ws-hub/v1/ws/` | Socket.IO path. |
+| `SOCKET_URL` | | `wss://api.tiket.com/ms-gateway/tix-ggwp-ws-hub/v1/ws/` | Socket.IO URL including the Engine.IO path. |
 | `API_BASE_URL` | | `https://www.tiket.com/.../session` | Base for the `/{CAMPAIGN_SESSION_ID}/hit` endpoint. |
 | `MAX_MS_DIFF` | | `1300` | Fire the hit when the countdown is within this many ms. |
 | `STOP_AT` | | — | ISO datetime hard stop; after this, hits stop. The dashboard stays up. |
