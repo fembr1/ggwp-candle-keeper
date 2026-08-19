@@ -1,20 +1,11 @@
 const CONFIG_KEYS = [
   "ACCESS_TOKEN",
-  "ROOM_NAME",
-  "CAMPAIGN_ID",
+  "CAMPAIGN_SESSION_ID",
   "MAX_MS_DIFF",
   "STOP_AT",
-  "COOKIE",
   "SOCKET_URL",
   "WS_PATH",
   "API_BASE_URL",
-  "ORIGIN",
-  "USER_AGENT",
-  "DEVICE_ID",
-  "COUNTRY_CODE",
-  "CURRENCY",
-  "LANG",
-  "REFERER",
 ];
 
 const loginView = document.getElementById("login-view");
@@ -102,7 +93,6 @@ function renderStatus(next) {
   document.getElementById("st-socket").textContent = next.socketId || "—";
   document.getElementById("st-error").textContent = next.lastError || "—";
   document.getElementById("st-room").textContent = next.roomName || "—";
-  document.getElementById("st-campaign").textContent = next.campaignId || "—";
   document.getElementById("st-users").textContent = next.userCount
     ? `${next.userCount}${next.multiUser ? " · round-robin" : ""}`
     : "—";

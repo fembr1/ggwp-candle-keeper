@@ -45,8 +45,7 @@
         <article class="card">
           <h2>Session</h2>
           <dl>
-            <div><dt>Room</dt><dd id="st-room">—</dd></div>
-            <div><dt>Campaign</dt><dd id="st-campaign">—</dd></div>
+            <div><dt>Session</dt><dd id="st-room">—</dd></div>
             <div><dt>Users</dt><dd id="st-users">—</dd></div>
           </dl>
         </article>
@@ -79,12 +78,8 @@
               <textarea id="cfg-ACCESS_TOKEN" rows="3" placeholder="token_a,token_b"></textarea>
             </label>
             <label>
-              ROOM_NAME
-              <input id="cfg-ROOM_NAME" type="text" />
-            </label>
-            <label>
-              CAMPAIGN_ID
-              <input id="cfg-CAMPAIGN_ID" type="text" />
+              CAMPAIGN_SESSION_ID
+              <input id="cfg-CAMPAIGN_SESSION_ID" type="text" />
             </label>
             <label>
               MAX_MS_DIFF
@@ -93,10 +88,6 @@
             <label>
               STOP_AT
               <input id="cfg-STOP_AT" type="text" placeholder="2026-08-12T18:00:00+07:00" />
-            </label>
-            <label class="wide">
-              COOKIE
-              <textarea id="cfg-COOKIE" rows="2" placeholder="optional full browser Cookie header"></textarea>
             </label>
           </div>
 
@@ -114,34 +105,6 @@
               <label class="wide">
                 API_BASE_URL
                 <input id="cfg-API_BASE_URL" type="text" />
-              </label>
-              <label>
-                ORIGIN
-                <input id="cfg-ORIGIN" type="text" />
-              </label>
-              <label>
-                USER_AGENT
-                <input id="cfg-USER_AGENT" type="text" />
-              </label>
-              <label>
-                DEVICE_ID
-                <input id="cfg-DEVICE_ID" type="text" />
-              </label>
-              <label>
-                COUNTRY_CODE
-                <input id="cfg-COUNTRY_CODE" type="text" />
-              </label>
-              <label>
-                CURRENCY
-                <input id="cfg-CURRENCY" type="text" />
-              </label>
-              <label>
-                LANG
-                <input id="cfg-LANG" type="text" />
-              </label>
-              <label>
-                REFERER
-                <input id="cfg-REFERER" type="text" />
               </label>
             </div>
           </details>
