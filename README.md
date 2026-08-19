@@ -74,6 +74,12 @@ does not sleep.
 
 Health check endpoint (no auth): `GET /health`.
 
+On WebSocket connect failure the process prints a copy-paste block
+`===== OUTBOUND FAILURE (copy this block for DevOps) =====` with DNS, Cloudflare
+headers (`cf-ray`, `cf-mitigated`), an HTTP probe of the same Engine.IO path, and
+Railway replica metadata. Tokens and cookies are not included. The dump is
+throttled to once every 20 seconds.
+
 Do not commit tokens. Keep `.env` and `config.json` gitignored; put secrets in
 Railway Variables or the dashboard.
 
