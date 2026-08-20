@@ -10,7 +10,7 @@ const config = load();
 const errors = validate(config, { requireReady: true });
 if (errors.length) {
   for (const err of errors) console.error(`❌ ${err}`);
-  console.error("Copy .env.example to .env and fill in ACCESS_TOKEN + CAMPAIGN_SESSION_ID.");
+  console.error("Copy .env.example to .env and fill in ACCESS_TOKEN + at least one CAMPAIGN_SESSION_ID.");
   process.exit(1);
 }
 

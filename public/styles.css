@@ -135,9 +135,14 @@ label {
 }
 
 .app {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1.25rem 1rem 3rem;
+  display: grid;
+  gap: 1rem;
+}
+
+#config-form {
   display: grid;
   gap: 1rem;
 }
@@ -279,6 +284,47 @@ th {
   font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.log-view.compact {
+  height: 220px;
+}
+
+.sessions-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.sessions-head .muted {
+  margin: 0.15rem 0 0;
+}
+
+#sessions-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.session-card {
+  padding: 1.15rem 1.2rem;
+}
+
+.session-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.session-runtime {
+  margin-top: 0.35rem;
+}
+
+.hits-title {
+  margin-top: 0.9rem;
 }
 
 .log-error {

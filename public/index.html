@@ -33,31 +33,20 @@
         </div>
       </header>
 
-      <section class="status-grid">
-        <article class="card">
-          <h2>Connection</h2>
-          <dl>
-            <div><dt>State</dt><dd id="st-running">—</dd></div>
-            <div><dt>Socket</dt><dd id="st-socket">—</dd></div>
-            <div><dt>Last error</dt><dd id="st-error">—</dd></div>
-          </dl>
-        </article>
-        <article class="card">
-          <h2>Session</h2>
-          <dl>
-            <div><dt>Session</dt><dd id="st-room">—</dd></div>
-            <div><dt>Users</dt><dd id="st-users">—</dd></div>
-          </dl>
-        </article>
-        <article class="card">
-          <h2>Timing</h2>
-          <dl>
-            <div><dt>Max ms diff</dt><dd id="st-diff">—</dd></div>
-            <div><dt>Hard stop</dt><dd id="st-stop">—</dd></div>
-            <div><dt>Countdown</dt><dd id="st-countdown">—</dd></div>
-          </dl>
-        </article>
-      </section>
+      <article class="card">
+        <h2>Connection</h2>
+        <dl>
+          <div><dt>State</dt><dd id="st-running">—</dd></div>
+          <div><dt>Socket</dt><dd id="st-socket">—</dd></div>
+          <div><dt>Users</dt><dd id="st-users">—</dd></div>
+          <div><dt>Last error</dt><dd id="st-error">—</dd></div>
+        </dl>
+        <div class="logs-head">
+          <h2>Connection log</h2>
+          <button id="btn-clear-conn-logs" type="button" class="ghost small">Clear view</button>
+        </div>
+        <pre id="conn-log-view" class="log-view"></pre>
+      </article>
 
       <section class="card controls">
         <div class="btn-row">
@@ -68,26 +57,14 @@
         <p id="action-error" class="error" hidden></p>
       </section>
 
-      <section class="card">
-        <h2>Configuration</h2>
-        <p class="muted">Save writes to disk and restarts the client if it is already running.</p>
-        <form id="config-form">
+      <form id="config-form">
+        <section class="card">
+          <h2>Configuration</h2>
+          <p class="muted">Save writes to disk and restarts the client if it is already running. Tokens and socket URL are shared; each session has its own room, threshold, and hard stop.</p>
           <div class="form-grid">
             <label class="wide">
               ACCESS_TOKEN
               <textarea id="cfg-ACCESS_TOKEN" rows="3" placeholder="token_a,token_b"></textarea>
-            </label>
-            <label>
-              CAMPAIGN_SESSION_ID
-              <input id="cfg-CAMPAIGN_SESSION_ID" type="text" />
-            </label>
-            <label>
-              MAX_MS_DIFF
-              <input id="cfg-MAX_MS_DIFF" type="number" min="1" />
-            </label>
-            <label>
-              STOP_AT
-              <input id="cfg-STOP_AT" type="text" placeholder="2026-08-12T18:00:00+07:00" />
             </label>
           </div>
 
@@ -104,40 +81,24 @@
               </label>
             </div>
           </details>
+        </section>
 
+        <div class="sessions-head">
+          <div>
+            <h2>Sessions</h2>
+            <p class="muted">One Socket.IO connection joins every session id. STOP_AT only leaves that room.</p>
+          </div>
+          <button id="btn-add-session" type="button" class="ghost small">Add session</button>
+        </div>
+        <div id="sessions-list"></div>
+
+        <section class="card">
           <div class="btn-row">
             <button type="submit">Save config</button>
             <span id="save-status" class="muted"></span>
           </div>
-        </form>
-      </section>
-
-      <section class="card logs">
-        <div class="logs-head">
-          <h2>Live logs</h2>
-          <button id="btn-clear-logs" type="button" class="ghost small">Clear view</button>
-        </div>
-        <pre id="log-view" class="log-view"></pre>
-      </section>
-
-      <section class="card">
-        <h2>Hit history</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>User</th>
-                <th>Status</th>
-                <th>Result</th>
-              </tr>
-            </thead>
-            <tbody id="hits-body">
-              <tr><td colspan="4" class="muted">No hits yet</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+        </section>
+      </form>
     </div>
 
     <script src="/app.js"></script>

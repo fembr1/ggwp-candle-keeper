@@ -12,6 +12,8 @@ const {
   validate,
   isReady,
   getConfigPath,
+  emptySession,
+  findSessionIndex,
 } = require("./lib/config");
 const { createClient } = require("./lib/client");
 const { LogBuffer } = require("./lib/log-buffer");
@@ -162,12 +164,79 @@ app.post("/api/client/restart", requireAuth, (_req, res) => {
   }
 });
 
+function sessionActionPayload() {
+  return {
+    ok: true,
+    config,
+    status: {
+      ...client.getStatus(),
+      configPath: getConfigPath(),
+      configReady: isReady(config),
+    },
+  };
+}
+
+function persistOrFail(res) {
+  try {
+    save(config);
+    return true;
+  } catch (err) {
+    res.status(500).json({ error: `Failed to save config: ${err.message}` });
+    return false;
+  }
+}
+
+app.post("/api/sessions/:id/listen", requireAuth, (req, res) => {
+  const id = String(req.params.id || "").trim();
+  const index = findSessionIndex(config, id);
+  if (index < 0) {
+    return res.status(404).json({ error: `Unknown session: ${id}` });
+  }
+  config.SESSIONS[index].LISTENING = true;
+  if (!persistOrFail(res)) return;
+  try {
+    if (client.running) client.resumeSession(id);
+  } catch (err) {
+    return res.status(400).json({
+      error: err.message,
+      config,
+      status: client.getStatus(),
+    });
+  }
+  res.json(sessionActionPayload());
+});
+
+app.post("/api/sessions/:id/unlisten", requireAuth, (req, res) => {
+  const id = String(req.params.id || "").trim();
+  const index = findSessionIndex(config, id);
+  if (index < 0) {
+    return res.status(404).json({ error: `Unknown session: ${id}` });
+  }
+  config.SESSIONS[index].LISTENING = false;
+  if (!persistOrFail(res)) return;
+  if (client.running) client.pauseSession(id);
+  res.json(sessionActionPayload());
+});
+
+app.delete("/api/sessions/:id", requireAuth, (req, res) => {
+  const id = String(req.params.id || "").trim();
+  config.SESSIONS = (config.SESSIONS || []).filter(
+    (row) => String(row.CAMPAIGN_SESSION_ID || "").trim() !== id
+  );
+  if (config.SESSIONS.length === 0) config.SESSIONS = [emptySession()];
+  if (!persistOrFail(res)) return;
+  if (client.running || client.runtime) client.dropSession(id);
+  res.json(sessionActionPayload());
+});
+
 app.get("/api/hits", requireAuth, (_req, res) => {
-  res.json({ hits: buffer.snapshot().hits });
+  const snap = buffer.snapshot();
+  res.json({ connectionLogs: snap.connectionLogs, bySession: snap.bySession });
 });
 
 app.get("/api/logs", requireAuth, (_req, res) => {
-  res.json({ logs: buffer.snapshot().logs });
+  const snap = buffer.snapshot();
+  res.json({ connectionLogs: snap.connectionLogs, bySession: snap.bySession });
 });
 
 app.get("/api/logs/stream", requireAuth, (req, res) => {
@@ -182,8 +251,8 @@ app.get("/api/logs/stream", requireAuth, (req, res) => {
 
   const snap = buffer.snapshot();
   send("snapshot", {
-    logs: snap.logs,
-    hits: snap.hits,
+    connectionLogs: snap.connectionLogs,
+    bySession: snap.bySession,
     status: {
       ...client.getStatus(),
       configPath: getConfigPath(),
